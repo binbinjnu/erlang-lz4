@@ -29,9 +29,9 @@ nif_compress(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[])
   int real_size;
   size_t res_size;
 
-  if (!enif_inspect_binary(env, argv[0], &src_bin) ||
+  if (!enif_inspect_iolist_as_binary(env, argv[0], &src_bin) ||
       !enif_is_list(env, argv[1]))
-    return 0;
+    return enif_make_badarg(env);
 
   opts_term = argv[1];
   while (enif_get_list_cell(env, opts_term, &head_term, &tail_term)) {
@@ -103,5 +103,10 @@ static int on_load(ErlNifEnv* env, void** priv_data, ERL_NIF_TERM load_info)
   return 0;
 }
 
-ERL_NIF_INIT(lz4, nif_funcs, &on_load, NULL, NULL, NULL);
+static int on_upgrade(ErlNifEnv* env, void** priv_data, void** old_priv_data, ERL_NIF_TERM load_info)
+{
+    return 0;
+}
+
+ERL_NIF_INIT(lz4, nif_funcs, &on_load, NULL, &on_upgrade, NULL);
 
